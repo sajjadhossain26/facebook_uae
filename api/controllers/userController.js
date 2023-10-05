@@ -3,7 +3,7 @@ import User from '../models/User.js'
 import createError from '../utility/createError.js'
 import { hashPassword, passwordVerify } from '../utility/hash.js';
 import { mathRandom } from '../utility/math.js';
-import { sendActivationLink } from '../utility/sendMail.js';
+import { sendActivationLink, sendPasswordForgotLink } from '../utility/sendMail.js';
 import { createToken, tokenVerify } from '../utility/token.js';
 import { isEmail } from '../utility/valiDate.js';
 
@@ -51,7 +51,6 @@ export const register =async (req, res, next) => {
  
 
     if(user){
-    const token = createToken ({id: user._id}, '365d')
     const activationToken = createToken({id: user._id}, '30d')
  
     sendActivationLink(user.email, {
@@ -63,7 +62,6 @@ export const register =async (req, res, next) => {
       res.status(200).json({
         message: 'Registration successfull!',
         user: user,
-        token: token
       })
     }
   } catch (error) {
@@ -211,6 +209,7 @@ export const activateAccount =async (req, res, next) => {
 
 
 
+
 /**
  * Account activate by code
  */
@@ -232,6 +231,107 @@ export const activateAccountByCode = async (req, res, next) => {
       message: 'Account activation successful!'
     })
    }
+  } catch (error) {
+    next(error)
+  }
+}
+
+
+
+
+
+/**
+ * Forgot password
+ */
+
+export const forgotPassword =async (req, res, next) => {
+  try {
+    const {email} = req.body;
+    const user = await User.findOne({email: email})
+
+    if(!user){
+      next(createError(404, 'User not found'))
+    }
+    
+
+    // Forgot Password code
+    let activationCode = mathRandom(10000, 99999)
+
+   // check code
+   const checkActivation = await User.findOne({access_token: activationCode})  
+   if(checkActivation){
+     activationCode = mathRandom(10000, 99999)
+   }
+
+   
+    if(user){
+      const forgotPasswordLink = createToken({id: user._id}, '30d')
+ 
+    sendPasswordForgotLink(user.email, {
+      name: user.first_name,
+      link:`${process.env.APP_URL +':'+ process.env.SERVER_PORT }/api/v1/user/forgot-password/${forgotPasswordLink}`,
+      code: activationCode
+    })
+
+    await User.findByIdAndUpdate(user._id, {
+      access_token: activationCode
+    })
+    
+      res.status(200).json({
+        message: 'Password reset link has been sent',
+      })
+    }
+
+  } catch (error) {
+    next(error)
+  }
+}
+
+
+
+
+/**
+ * Pasword reset
+ */
+
+
+export const passwordResetAction =async (req, res, next) => {
+  try {
+
+    const {token} = req.params;
+    const {password} = req.body
+
+    if(!token){
+      next(createError(400, 'Invalid password reset url'))
+    }
+    const tokenData = tokenVerify(token)
+
+    // check token 
+    if(!tokenData){
+      next(createError(400, "invalid reset link!"))
+    }
+ 
+
+    if(tokenData){
+      const user = await User.findById(tokenData.id);
+
+      if(!user){
+        next(createError(400, "Invalid user id"))
+      }
+
+      if(user){
+        await User.findByIdAndUpdate(user._id, {
+          password: hashPassword(password),
+          access_token: ''
+        })
+      }
+
+      res.status(200).json({
+        message: "Password change succesfull!"
+      })
+    }
+
+    
   } catch (error) {
     next(error)
   }
