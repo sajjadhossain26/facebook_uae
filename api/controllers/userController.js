@@ -16,7 +16,6 @@ import { isEmail } from '../utility/valiDate.js';
  * @route api/user
  */
 
-
 export const register =async (req, res, next) => {
   try {
     const {first_name, sur_name, email, password, birth_date, birth_month, birth_year, gender} = req.body;
@@ -78,7 +77,6 @@ export const register =async (req, res, next) => {
  * @route api/user
  */
 
-
 export const login =async (req, res, next) => {
   try {
     const {email, password} = req.body;
@@ -125,7 +123,6 @@ export const login =async (req, res, next) => {
  * @route api/v1/user/
  */
 
-
 export const loggedInUser =async (req, res, next) => {
   const auth_token = req.headers.authorization;
   try {
@@ -166,7 +163,6 @@ export const loggedInUser =async (req, res, next) => {
 /**
  * Account activation by email
  */
-
 
 export const activateAccount =async (req, res, next) => {
   try {
@@ -293,7 +289,6 @@ export const forgotPassword =async (req, res, next) => {
 /**
  * Pasword reset
  */
-
 
 export const passwordResetAction =async (req, res, next) => {
   try {
