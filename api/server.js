@@ -5,6 +5,7 @@ import userRouter from './routes/user.js';
 import mongoDB from './config/db.js';
 import errorHandler from './middlewares/errorHandler.js';
 import cookieParser from 'cookie-parser';
+import cors from 'cors'
 
 
 // express init
@@ -18,6 +19,7 @@ const PORT = process.env.SERVER_PORT || 5000
 app.use(express.json());
 app.use(express.urlencoded({extended: false}))
 app.use(cookieParser())
+app.use(cors())
 
 // router setup
 app.use('/api/v1/user', userRouter)

@@ -1,12 +1,14 @@
 import React, { useState } from 'react'
 import crossBtn from "../assets/icons/cross.png";
 import createToast from '../utility/toast';
+import { useDispatch } from 'react-redux';
+import { userRegister } from '../../redux/auth/authAction';
+
 
     //  day
     let day = [];
     for(let i = 1; i <=31; i++ ){
         day.push(i)
-        console.log(day);
     }
     // Month of registration
     const month = [
@@ -31,14 +33,16 @@ import createToast from '../utility/toast';
 
 const Register = ({setRegister}) => {
 
+    const dispatch = useDispatch()
+
     const [input, setInput] = useState({
         first_name: "",
         sur_name: "", 
         emailorMobile:"",
         password:"",
-        day:"",
-        month:"",
-        year:"",
+        birth_date:"",
+        birth_month:"",
+        birth_year:"",
         gender: ""
     })
 
@@ -83,7 +87,22 @@ const Register = ({setRegister}) => {
 
           if(!input.first_name || !input.sur_name || !input.password || !input.emailorMobile || !input.gender){
             createToast('All Fields are required!')
+          }else{
+            dispatch(userRegister({
+              first_name: input.first_name,
+              sur_name:input.sur_name,
+              email: input.emailorMobile,
+              password: input.password,
+              birth_date: input.birth_date,
+              birth_month: input.birth_month,
+              birth_year: input.birth_year,
+              gender: input.gender
+            }, setInput, e, setRegister))
+
+           
           }
+
+        
     }
     
 
@@ -119,21 +138,21 @@ const Register = ({setRegister}) => {
             <div className="reg-form">
               <span>Date of birth</span>
               <div className="reg-form-select">
-                <select name="" id=""  onChange={handleInputChange}>
+                <select name="birth_date" id=""  onChange={handleInputChange}>
                   {
                     day.map((item, index) => (
                         <option value={item} key={index}>{item}</option>
                     ))
                   }
                 </select>
-                <select name="" id=""  onChange={handleInputChange}>
+                <select name="birth_month" id=""  onChange={handleInputChange}>
                     {
                         month.map((item, index) => (
                            <option value={item} key={index}>{item}</option>
                         ))
                     }
                 </select>
-                <select name="" id=""  onChange={handleInputChange}> 
+                <select name="birth_year" id=""  onChange={handleInputChange}> 
                     {
                         years.map((item, index) => (
 
