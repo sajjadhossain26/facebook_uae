@@ -1,13 +1,21 @@
 import axios from 'axios';
 import createToast from '../../src/utility/toast';
+import { REGISTER_FAILED, REGISTER_REQUEST, REGISTER_SUCCESS } from './actionType';
+
 
 // user register
-export const userRegister = (data, setInput, e, setRegister) => async (dispatch) => {
+export const userRegister = (data, setInput, e, setRegister, navigate) => async (dispatch) => {
 
   try {
-    console.log(data);
+    dispatch({
+      type: REGISTER_REQUEST,
+    })
    await axios.post("/api/v1/user/register", data).then(res=> {
      createToast('User register successful!', 'success')
+     dispatch({
+      type: REGISTER_SUCCESS,
+      payload: res.data.message
+    })
      setInput({
       first_name: "",
       sur_name: "", 
@@ -20,13 +28,40 @@ export const userRegister = (data, setInput, e, setRegister) => async (dispatch)
     })
      e.target.reset()
      setRegister(false)
+     navigate('/activation')
    }).catch(error => {
-    console.log(
-      "error", error
-    );
+    createToast(error.response.data.message);
+      
+    dispatch({
+      type: REGISTER_FAILED,
+      payload: error.response.data
+    })
    
    })
   } catch (error) {
-    console.log(error);
+    createToast(error.response.data.message);
+    dispatch({
+      type: REGISTER_FAILED,
+      payload: error.response.data
+    })
+  }
+}
+
+// user account activation by otp
+export const activationOtp = ({code, email}, navigate) => async (dispatch) => {
+  try {
+
+     axios.post('/api/v1/user/activation_code', {
+      code: code,
+    }).then(res=> {
+      createToast('Account activate successful', 'success')
+      navigate('/login')
+    }).catch(error => {
+      createToast(error.response.data.message);
+    })
+    
+  } catch (error) {
+    createToast(error.response.data.message);
+    
   }
 }

@@ -3,6 +3,7 @@ import crossBtn from "../assets/icons/cross.png";
 import createToast from '../utility/toast';
 import { useDispatch } from 'react-redux';
 import { userRegister } from '../../redux/auth/authAction';
+import { useNavigate } from 'react-router-dom';
 
 
     //  day
@@ -32,6 +33,8 @@ import { userRegister } from '../../redux/auth/authAction';
 
 
 const Register = ({setRegister}) => {
+    
+  const navigate = useNavigate()
 
     const dispatch = useDispatch()
 
@@ -97,7 +100,7 @@ const Register = ({setRegister}) => {
               birth_month: input.birth_month,
               birth_year: input.birth_year,
               gender: input.gender
-            }, setInput, e, setRegister))
+            }, setInput, e, setRegister, navigate))
 
            
           }

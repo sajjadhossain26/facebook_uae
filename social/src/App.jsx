@@ -6,10 +6,10 @@ import Profile from './pages/Profile/Profile'
 import Auth from './pages/Auth/Auth'
 import { ToastContainer, toast } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
+import Activation from './pages/Activation/Activation'
 
 function App() {
   const [count, setCount] = useState(0)
-  toast.success("hi this is toast");
   return (
   <>   
   <ToastContainer
@@ -28,6 +28,7 @@ function App() {
         <Route path='/' element={<Home/>}/>
         <Route path='/profile' element={<Profile/>}/>
         <Route path='/login' element={<Auth/>}/>
+        <Route path='/activation' element={<Activation/>}/>
       </Routes>
   </>
 

@@ -10,6 +10,7 @@ import { isEmail } from '../utility/valiDate.js';
 
 
 
+
 /**
  * @access public
  * @method GET
@@ -31,7 +32,7 @@ export const register =async (req, res, next) => {
 
     const emailUser = await User.findOne({email: email});
     if(emailUser){
-      next(createError(400, "Email already exist"));
+     return next(createError(400, "Email already exist"));
     }
   // activation code 
 
@@ -58,7 +59,9 @@ export const register =async (req, res, next) => {
       code: activationCode
     })
     
-      res.status(200).json({
+      res.status(200).cookie("otp", user.email, {
+        expires: new Date(Date.now() + 1000 * 60 *15)
+      }).json({
         message: 'Registration successfull!',
         user: user,
       })
