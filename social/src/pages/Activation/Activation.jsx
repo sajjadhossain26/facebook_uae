@@ -5,7 +5,7 @@ import { Link, useNavigate } from 'react-router-dom'
 import Cookie from 'js-cookie'
 import { useEffect } from 'react'
 import { useDispatch } from 'react-redux'
-import { activationOtp } from '../../../redux/auth/authAction'
+import { activationOtp, resendLink } from '../../../redux/auth/authAction'
 import createToast from '../../utility/toast'
 
 const Activation = () => {
@@ -34,8 +34,12 @@ const Activation = () => {
         createToast('Put otp code first', 'warn')
        }else{
         dispatch(activationOtp({code: activationCode, email: Cookie.get('otp')}, navigate))
-
        }
+    }
+
+    const handleResendLink =(e) => {
+      e.preventDefault();
+      dispatch(resendLink(activationEmail, navigate)) 
     }
   return (
     <>
@@ -75,7 +79,7 @@ const Activation = () => {
             </div>
           </div>
           <div className="reset-footer">
-            <a href="#">Didn't get a code?</a>
+            <a onClick={handleResendLink} href="#">Didn't get a code?</a>
             <div className="reset-btns">
               <a className="cancel" onClick={handleActivationcancel}>Cancel</a>
               <a className="continue" onClick={handleCodeContinue} href="#">Continue</a>

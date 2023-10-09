@@ -116,6 +116,53 @@ export const login =async (req, res, next) => {
 }
 
 
+/**
+ * @access public
+ * @route /api/user/resend-activation
+ * @route POST
+ */
+
+export const resendActivation =async (req, res, next) => {
+
+  const {email} = req.body
+  try {
+    const emailUser =await User.findOne({ email: email, isActivate: false });
+
+          if(!emailUser){
+            createError(400, 'Invalid Link request')
+          }
+
+          if(emailUser){
+          const activationToken = createToken({id: emailUser._id}, '30d')
+          // activation code 
+          let activationCode = mathRandom(10000, 99999)
+        // check activation
+        const checkActivation = await User.findOne({access_token: activationCode})  
+        if(checkActivation){
+          activationCode = mathRandom(10000, 99999)
+        }
+          sendActivationLink(emailUser.email, {
+            name: emailUser.first_name,
+            link:`${process.env.APP_URL +':'+ process.env.SERVER_PORT }/api/v1/user/activate/${activationToken}`,
+            code: activationCode
+          })
+
+          // update new link
+          await User.findByIdAndUpdate(emailUser._id, {
+            access_token: activationCode
+          })
+          
+            res.status(200).cookie("otp", emailUser.email, {
+              expires: new Date(Date.now() + 1000 * 60 *15)
+            }).json({
+              message: 'New activation link has been send',
+            })
+          }
+  } catch (error) {
+    next(error)
+  }
+}
+
 
 
 
@@ -157,8 +204,6 @@ export const loggedInUser =async (req, res, next) => {
     next(error)
   }
 }
-
-
 
 
 
@@ -215,10 +260,10 @@ export const activateAccount =async (req, res, next) => {
 
 export const activateAccountByCode = async (req, res, next) => {
   try {
-    const {code} = req.body;
-   const user = await User.findOne().and([{access_token: code}, {isActivate: false}])
+    const {code, email} = req.body;
+   const user = await User.findOne().and([{access_token: code}, {isActivate: false}, {email: email}])
    if(!user){
-    next(createError(400, "Activation user not found"))
+    next(createError(400, "Invalid otp code"))
    }
    if(user){
     await User.findByIdAndUpdate(user.id,{
@@ -226,7 +271,7 @@ export const activateAccountByCode = async (req, res, next) => {
       access_token: ''
     })
 
-    res.status(400).json({
+    res.status(200).json({
       message: 'Account activation successful!'
     })
    }

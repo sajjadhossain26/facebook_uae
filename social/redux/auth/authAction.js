@@ -53,9 +53,30 @@ export const activationOtp = ({code, email}, navigate) => async (dispatch) => {
 
      axios.post('/api/v1/user/activation_code', {
       code: code,
+      email: email
     }).then(res=> {
       createToast('Account activate successful', 'success')
       navigate('/login')
+    }).catch(error => {
+      createToast(error.response.data.message);
+    })
+    
+  } catch (error) {
+    createToast(error.response.data.message);
+    
+  }
+}
+
+
+// resend activation by otp
+export const resendLink = (email, navigate) => async (dispatch) => {
+  try {
+
+     axios.post('/api/v1/user/resend_activate', {
+      email: email,
+    }).then(res=> {
+      createToast(res.data.message, 'success')
+      
     }).catch(error => {
       createToast(error.response.data.message);
     })
