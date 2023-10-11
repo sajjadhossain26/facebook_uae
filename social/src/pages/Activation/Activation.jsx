@@ -1,5 +1,4 @@
 import React, { useState } from 'react'
-import FacebookLogo from '../../assets/icons/facebook.svg'
 import Footer from '../../components/Footer/Footer'
 import { Link, useNavigate } from 'react-router-dom'
 import Cookie from 'js-cookie'
@@ -7,6 +6,7 @@ import { useEffect } from 'react'
 import { useDispatch } from 'react-redux'
 import { activationOtp, resendLink } from '../../../redux/auth/authAction'
 import createToast from '../../utility/toast'
+import ResetHeader from '../../components/ResetHeader/ResetHeader'
 
 const Activation = () => {
     const navigate = useNavigate()
@@ -44,20 +44,8 @@ const Activation = () => {
   return (
     <>
        {/* <!-- Facebook Auth Area --> */}
-    <div className="reset-header">
-      <div className="reset-header-wraper">
-        <div className="reset-logo">
-          <img src={FacebookLogo} alt="" />
-        </div>
-        <div className="login-part">
-          <input type="text"  placeholder="Email or mobile number" />
-          <input type="text" placeholder="Password" />
-          <button>Log In</button>
-          <a href="#">Forgotten account?</a>
-        </div>
-      </div>
-    </div>
 
+    <ResetHeader/>
     {/* <!-- reset Box  --> */}
     <div className="reset-area">
       <div className="reset-wraper">

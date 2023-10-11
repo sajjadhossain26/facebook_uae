@@ -7,6 +7,9 @@ import Auth from './pages/Auth/Auth'
 import { ToastContainer, toast } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
 import Activation from './pages/Activation/Activation'
+import Forgot from './pages/Forgot/Forgot'
+import FindAccount from './pages/FindAccount/FindAccount'
+import Password from './pages/Password/Password'
 
 function App() {
   const [count, setCount] = useState(0)
@@ -29,6 +32,9 @@ function App() {
         <Route path='/profile' element={<Profile/>}/>
         <Route path='/login' element={<Auth/>}/>
         <Route path='/activation' element={<Activation/>}/>
+        <Route path='/forgot' element={<Forgot/>}/>
+        <Route path='/find-account' element={<FindAccount/>}/>
+        <Route path='/new-password' element={<Password/>}/>
       </Routes>
   </>
 

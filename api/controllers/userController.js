@@ -5,7 +5,7 @@ import { hashPassword, passwordVerify } from '../utility/hash.js';
 import { mathRandom } from '../utility/math.js';
 import { sendActivationLink, sendPasswordForgotLink } from '../utility/sendMail.js';
 import { createToken, tokenVerify } from '../utility/token.js';
-import { isEmail } from '../utility/valiDate.js';
+import { isEmail, isMobile } from '../utility/valiDate.js';
 
 
 
@@ -19,21 +19,35 @@ import { isEmail } from '../utility/valiDate.js';
 
 export const register =async (req, res, next) => {
   try {
-    const {first_name, sur_name, email, password, birth_date, birth_month, birth_year, gender} = req.body;
+    const {first_name, sur_name, auth, password, birth_date, birth_month, birth_year, gender} = req.body;
 
     // validation
-    if(!first_name || !sur_name || !email || !password || !gender ){
+    if(!first_name || !sur_name || !auth || !password || !gender ){
       next(createError(404, "All Fields are required!"))
     }
+    
+    // initial auth value
+    let mobileData = null;
+    let emailData = null;
+   
+    
+    if(isEmail(auth)){
+       emailData = auth;
+       const emailUser = await User.findOne({email: emailData});
+       if(emailUser){
+        return next(createError(400, 'Email Already exist'))
+       }
+    }else if(isMobile(auth)){
+       mobileData = auth;
+       const mobileUser = await User.findOne({mobile: mobileData});
+       if(mobileUser){
 
-    if(!isEmail(email)){
-      next(createError(400, "Invalid Email Address!"))
+         return next(createError(400, 'Mobile Number already axist'))
+       }
+    }else{
+      next(createError(400, 'Invalid mobile or email'))
     }
-
-    const emailUser = await User.findOne({email: email});
-    if(emailUser){
-     return next(createError(400, "Email already exist"));
-    }
+   
   // activation code 
 
    let activationCode = mathRandom(10000, 99999)
@@ -45,7 +59,7 @@ export const register =async (req, res, next) => {
   }
 
     const user = await User.create({
-      first_name, sur_name, email, password: hashPassword(password), birth_date, birth_month, birth_year, gender, access_token: activationCode
+      first_name, sur_name, email: emailData, mobile: mobileData, password: hashPassword(password), birth_date, birth_month, birth_year, gender, access_token: activationCode
     })
 
  
@@ -66,6 +80,7 @@ export const register =async (req, res, next) => {
         user: user,
       })
     }
+    
   } catch (error) {
      next(error)
   }
@@ -261,11 +276,16 @@ export const activateAccount =async (req, res, next) => {
 export const activateAccountByCode = async (req, res, next) => {
   try {
     const {code, email} = req.body;
-   const user = await User.findOne().and([{access_token: code}, {isActivate: false}, {email: email}])
+   const user = await User.findOne({email: email})
    if(!user){
-    next(createError(400, "Invalid otp code"))
+    next(createError(404, "Activation user not found"))
    }
-   if(user){
+
+   if(user.isActivate == true){
+    next(createError(404, "User alredy activated!"))
+   }else if(user.access_token != code){
+    next(createError(404, 'OTP Code not match'))
+   }else{
     await User.findByIdAndUpdate(user.id,{
       isActivate: true,
       access_token: ''
@@ -275,6 +295,7 @@ export const activateAccountByCode = async (req, res, next) => {
       message: 'Account activation successful!'
     })
    }
+   
   } catch (error) {
     next(error)
   }

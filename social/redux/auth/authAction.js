@@ -19,7 +19,7 @@ export const userRegister = (data, setInput, e, setRegister, navigate) => async 
      setInput({
       first_name: "",
       sur_name: "", 
-      emailorMobile:"",
+      auth:"",
       password:"",
       birth_date:"",
       birth_month:"",

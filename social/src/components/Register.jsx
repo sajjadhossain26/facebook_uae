@@ -41,7 +41,7 @@ const Register = ({setRegister}) => {
     const [input, setInput] = useState({
         first_name: "",
         sur_name: "", 
-        emailorMobile:"",
+        auth:"",
         password:"",
         birth_date:"",
         birth_month:"",
@@ -94,7 +94,7 @@ const Register = ({setRegister}) => {
             dispatch(userRegister({
               first_name: input.first_name,
               sur_name:input.sur_name,
-              email: input.emailorMobile,
+              auth: input.emailorMobile,
               password: input.password,
               birth_date: input.birth_date,
               birth_month: input.birth_month,

@@ -1,4 +1,5 @@
 import React from 'react'
+import { Link } from 'react-router-dom'
 
 const Login = ({setRegister}) => {
   return (
@@ -20,7 +21,7 @@ const Login = ({setRegister}) => {
               </div>
             </form>
 
-            <a href="#">Forgotten password?</a>
+            <Link to='/forgot' href="#">Forgotten password?</Link>
 
             <div className="divider"></div>
 
