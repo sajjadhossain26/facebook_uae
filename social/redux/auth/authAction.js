@@ -73,7 +73,7 @@ export const resendLink = (email, navigate) => async (dispatch) => {
   try {
 
      axios.post('/api/v1/user/resend_activate', {
-      email: email,
+      auth: email,
     }).then(res=> {
       createToast(res.data.message, 'success')
       

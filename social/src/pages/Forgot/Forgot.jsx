@@ -1,6 +1,7 @@
 import React from 'react'
 import ResetHeader from '../../components/ResetHeader/ResetHeader'
 import Footer from '../../components/Footer/Footer'
+import { Link } from 'react-router-dom'
 
 const Forgot = () => {
   return (
@@ -29,7 +30,7 @@ const Forgot = () => {
           <div className="reset-footer">
             <a href="#"></a>
             <div className="reset-btns">
-              <a className="cancel" href="#">Cancel</a>
+              <Link to='/login' className="cancel" href="#">Cancel</Link>
               <a className="continue" href="#">Search</a>
             </div>
           </div>
