@@ -1,9 +1,35 @@
-import React from 'react'
+import React, { useState } from 'react'
 import ResetHeader from '../../components/ResetHeader/ResetHeader'
 import Footer from '../../components/Footer/Footer'
-import { Link } from 'react-router-dom'
+import { Link, useNavigate } from 'react-router-dom'
+import createToast from '../../utility/toast'
+import axios from 'axios'
 
 const Forgot = () => {
+
+  const [auth, setAuth] = useState('')
+  const navigate = useNavigate()
+
+  const handForgotAuth = (e) => {
+     setAuth(e.target.value)
+  }
+
+  const handleSearchAccount = (e) => {
+   e.preventDefault();
+   if(!auth){
+    createToast('All Fields are required', 'warn')
+   }else{
+     axios.post('/api/v1/user/find-account', {
+      auth: auth
+    }).then(res => {
+      navigate('/find-account')
+    }).catch((error) => {
+      createToast(error.response.data.message)
+    })
+
+   
+   }
+  }
   return (
     <>
 
@@ -23,7 +49,9 @@ const Forgot = () => {
               <input
                 className="w-100"
                 type="text"
+                value={auth}
                 placeholder="Email address or mobile number"
+                onChange={handForgotAuth}
               />
             </div>
           </div>
@@ -31,7 +59,7 @@ const Forgot = () => {
             <a href="#"></a>
             <div className="reset-btns">
               <Link to='/login' className="cancel" href="#">Cancel</Link>
-              <a className="continue" href="#">Search</a>
+              <a className="continue" type='submit' onClick={handleSearchAccount} href="#">Search</a>
             </div>
           </div>
         </div>

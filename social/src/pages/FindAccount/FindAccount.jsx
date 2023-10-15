@@ -1,9 +1,23 @@
-import React from 'react'
+import React, { useState } from 'react'
 import ResetHeader from '../../components/ResetHeader/ResetHeader'
 import Footer from '../../components/Footer/Footer'
 import userIMG from '../../assets/images/user.png'
+import { Link, useNavigate } from 'react-router-dom'
+import Cookeis from 'js-cookie'
 
 const FindAccount = () => {
+
+  
+const userData = JSON.parse(Cookeis.get('findUser')) ?? null
+const navigate = useNavigate()
+
+console.log(userData);
+const handleNotYou = (e) => {
+ e.preventDefault();
+ Cookeis.remove('findUser')
+ navigate('/forgot-password')
+
+}
   return (
     <>
       <ResetHeader/>
@@ -23,7 +37,7 @@ const FindAccount = () => {
           <div className="reset-footer">
             <a href="#"></a>
             <div className="reset-btns">
-              <Link to="/login" className="cancel" href="#">Not you ?</Link>
+              <a onClick={handleNotYou} className="cancel" href="#">Not you ?</a>
               <a className="continue" href="#">Continue</a>
             </div>
           </div>

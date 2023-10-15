@@ -466,3 +466,59 @@ export const passwordResetAction =async (req, res, next) => {
     next(error)
   }
 }
+
+
+/**
+ * find account
+ */
+
+export const findAccount = async (req, res, next) => {
+  const {auth} = req.body;
+
+  try {
+     // initial auth value
+   let mobileData = null;
+   let emailData = null;
+  
+   
+   if(isEmail(auth)){
+      emailData = auth;
+      const emailUser = await User.findOne({email: emailData});
+      if(!emailUser){
+        return next(createError(400, 'Email User does not exist'))
+      }
+      if(emailUser){
+        res.status(200).cookie('findUser', JSON.stringify({
+          name: emailUser.first_name,
+          email: emailUser.email,
+          photo: emailUser.photo
+        }), {
+          expires: new Date(Date.now() + 1000 * 60 * 15),
+        }).json({
+          user: emailUser
+        })
+       }
+   }else if(isMobile(auth)){
+      mobileData = auth;
+      const mobileUser = await User.findOne({mobile: mobileData});
+      if(!mobileUser){
+        return next(createError(400, 'Mobile user does not exist'))
+      }
+      if(mobileUser){
+        res.status(200).cookie('findUser', JSON.stringify({
+          name: mobileUser.first_name,
+          mobile: mobileUser.mobile,
+          photo: mobileUser.photo
+        }), {
+          expires: new Date(Date.now() + 1000 * 60 * 15),
+        }).json({
+          user: mobileUser
+        })
+       }
+   }else{
+    return next(createError(400, "Invalid Mobile or Email"))
+   }
+  } catch (error) {
+    next(error)
+  }
+}
