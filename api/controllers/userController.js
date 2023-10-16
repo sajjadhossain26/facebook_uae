@@ -522,3 +522,94 @@ export const findAccount = async (req, res, next) => {
     next(error)
   }
 }
+
+
+/**
+ * Send password reset otp link
+ */
+
+export const sendPasswordResetOTP = async (req, res, next) => {
+
+  const { auth } = req.body;
+
+  try {
+    let mobileData = null;
+    let emailData = null;
+    let mobileCheck;
+    let emailCheck;
+
+    if (isEmail(auth)) {
+      emailData = auth;
+
+      emailCheck = await User.findOne({ email: auth });
+    } else if (isMobile(auth)) {
+      mobileData = auth;
+      mobileCheck = await User.findOne({ mobile: auth });
+    } else {
+      return next(createError(404, "Invalid email or mobile"));
+    }
+
+    // activation code
+    const activationCode = mathRandom(10000, 99999);
+    // check activation code
+    const checkCode = await User.findOne({ access_token: activationCode });
+    if (checkCode) {
+      activationCode = mathRandom(10000, 99999);
+    }
+
+    // New Otp send by mobile
+    if (mobileData) {
+      // send activation otp
+      sendOtp(
+        mobileCheck.mobile,
+        `Hi ${mobileCheck.first_name} ${mobileCheck.sur_name}, Your account reset confirmation otp is ${activationCode}`
+      );
+
+      // Update new link
+      await User.findByIdAndUpdate(mobileCheck._id, {
+        access_token: activationCode,
+      });
+
+      res
+        .status(200)
+        .cookie("otp", mobileCheck.mobile, {
+          expires: new Date(Date.now() + 1000 * 60 * 15),
+        })
+        .json({
+          message: "OTP code has been send on mobile",
+          user: mobileCheck,
+        });
+    }
+
+    // New Otp send by email
+
+    if (emailCheck) {
+      const activationToken = createToken({ id: emailCheck._id }, "30d");
+
+      // Update new link
+      await User.findByIdAndUpdate(emailCheck._id, {
+        access_token: activationCode,
+      });
+
+      // send activation mail
+      sendPasswordForgotLink(emailCheck.email, {
+        name: emailCheck.first_name,
+        link: `${
+          process.env.APP_URL + ":" + process.env.PORT
+        }/api/v1/user/activate/${activationToken}`,
+        code: activationCode,
+      });
+
+      res
+        .status(200)
+        .cookie("otp", emailCheck.email, {
+          expires: new Date(Date.now() + 1000 * 60 * 15),
+        })
+        .json({
+          message: "Activation link has been send",
+        });
+    }
+  } catch (error) {
+    next(error);
+  }
+}

@@ -4,6 +4,8 @@ import Footer from '../../components/Footer/Footer'
 import userIMG from '../../assets/images/user.png'
 import { Link, useNavigate } from 'react-router-dom'
 import Cookeis from 'js-cookie'
+import avatar from '../../assets/images/avatar.png'
+import { emailHide, mobileHide } from '../../utility/helper'
 
 const FindAccount = () => {
 
@@ -15,9 +17,28 @@ console.log(userData);
 const handleNotYou = (e) => {
  e.preventDefault();
  Cookeis.remove('findUser')
- navigate('/forgot-password')
+ navigate('/forgot')
 
 }
+
+
+  // handle password reset link
+  const handlePasswordResetLink = async (e) => {
+    e.preventDefault();
+    await axios
+      .post("/api/v1/user/send-password-reset", {
+        auth: findUser.mobile ?? findUser.email,
+      })
+      .then((res) => {
+        createToast(res.data.message, "success");
+        navigate("/activation/reset-password");
+      })
+      .catch((error) => {
+        createToast(error.response.data.message);
+      });
+  };
+
+
   return (
     <>
       <ResetHeader/>
@@ -29,8 +50,10 @@ const handleNotYou = (e) => {
           </div>
           <div className="reset-body">
             <div className="find-user-account">
-              <img src={userIMG} alt="" />
-              <span>Asraful Haque</span>
+              <img src={userData.photo? userData.photo :` ${avatar}`} alt="" />
+              <span>{userData.name}</span>
+              <p>{userData.email ?  `Email: ${emailHide(userData.email)}` : `Mobile: ${mobileHide(userData.mobile)}`}</p>
+
               <p>To reset your account password, please continue</p>
             </div>
           </div>
@@ -38,7 +61,7 @@ const handleNotYou = (e) => {
             <a href="#"></a>
             <div className="reset-btns">
               <a onClick={handleNotYou} className="cancel" href="#">Not you ?</a>
-              <a className="continue" href="#">Continue</a>
+              <a className="continue" onClick={handlePasswordResetLink} href="#">Continue</a>
             </div>
           </div>
         </div>
